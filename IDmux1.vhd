@@ -67,19 +67,25 @@ process(IDM1_DR1R_I,IDM1_INport_I,IDM1_PCip1_I,IDM1_DR1sel_I,IDM1_DR2R_I,IDM1_DR
         
         case IDM1_DR2sel_I is
             when '1'=>
-                DR2S <= IDM1_DR2C_I;
+                case IDM1_MEMopr_I(1) is
+                    when '1'=>
+                        IDM1_MEMadr_O <= IDM1_DR2C_I;
+                        IDM1_DR2_O <= (16 downto 0 => '0');
+                    when others =>
+                        IDM1_MEMadr_O <= (16 downto 0 => '0');
+                        IDM1_DR2_O <= IDM1_DR2C_I;
+                end case;
+                --    DR2S <= IDM1_DR2C_I;
             when others =>
-                DR2S <= IDM1_DR2R_I;
-                
-        end case;
-        
-        case IDM1_MEMopr_I(1) is
-            when '1'=>
-                IDM1_MEMadr_O <= DR2S;
-                IDM1_DR2_O <= (16 downto 0 => '0');
-            when others =>
-                IDM1_MEMadr_O <= (16 downto 0 => '0');
-                IDM1_DR2_O <= DR2S;
+                case IDM1_MEMopr_I(1) is
+                    when '1'=>
+                        IDM1_MEMadr_O <= IDM1_DR2R_I;
+                        IDM1_DR2_O <= (16 downto 0 => '0');
+                    when others =>
+                        IDM1_MEMadr_O <= (16 downto 0 => '0');
+                        IDM1_DR2_O <= IDM1_DR2R_I;
+                end case;
+                --DR2S <= IDM1_DR2R_I;
         end case;
     end process;    
 end Behavioral;

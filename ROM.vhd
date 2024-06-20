@@ -249,7 +249,7 @@ xpm_memory_sprom_inst : xpm_memory_sprom
     -- Common module generics
     MEMORY_SIZE             => 16384,--8192,            --positive integer
     MEMORY_PRIMITIVE        => "auto",          --string; "auto", "distributed", or "block";
-    MEMORY_INIT_FILE        => "l_1O.mem",--"BootME.mem",          --string; "none" or "<filename>.mem" 
+    MEMORY_INIT_FILE        => "BootMe3O.mem",--"SimBooter.mem",--"YOLOS.mem",--"l_0O.mem",--"BootME.mem",--          --string; "none" or "<filename>.mem" 
     MEMORY_INIT_PARAM       => "",              --string;
     USE_MEM_INIT            => 1,               --integer; 0,1
     WAKEUP_TIME             => "disable_sleep", --string; "disable_sleep" or "use_sleep_pin" 

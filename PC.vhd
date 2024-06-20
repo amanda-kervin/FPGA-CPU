@@ -37,8 +37,9 @@ entity PC is
     Port ( 
            IF_OverrideEn_I : in STD_LOGIC;
            IF_PointerOverride_I : in STD_LOGIC_VECTOR(15 downto 0);
+           IF_CLKen_I : in STD_LOGIC;
            IF_Pointer_O : out STD_LOGIC_VECTOR(15 downto 0);
-           IF_CLK_I,IF_RST_I : in STD_LOGIC);
+           IF_CLK_I,IF_RSTld_I,IF_RSTex_I : in STD_LOGIC);
 end PC;
 
 architecture Behavioral of PC is
@@ -47,15 +48,19 @@ signal Pointer: STD_LOGIC_VECTOR(15 downto 0);
 
 begin
 
-process(IF_CLK_I)
+process(IF_CLKen_I,IF_CLK_I)
     begin
-        if(IF_CLK_I='1' and IF_CLK_I'event) then
-            if (IF_RST_I='1') then
+        if( IF_CLK_I='1' and IF_CLK_I'event ) then
+            if (IF_RSTex_I='1') then
                 Pointer <= (15 downto 0 => '0');
-            elsif (IF_OverrideEn_I='1') then
-                Pointer <= IF_PointerOverride_I;
-            else
-                Pointer <=  std_logic_vector(unsigned(Pointer)+"0000000000000010");
+            elsif (IF_RSTld_I='1') then
+                Pointer <= (15 downto 2 => '0')&"10";
+            elsif (IF_CLKen_I = '1') then
+                if (IF_OverrideEn_I='1') then
+                    Pointer <= IF_PointerOverride_I;
+                else
+                    Pointer <=  std_logic_vector(unsigned(Pointer)+"0000000000000010");
+                end if;
             end if;
         end if;    
     end process;

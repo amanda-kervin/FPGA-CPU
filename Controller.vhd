@@ -48,18 +48,30 @@ entity Controller is
         CTRL_CLRde_O : out STD_LOGIC;
         CTRL_CLRem_O : out STD_LOGIC;
         
-        -----------
+        -----------FORWARDING
         CTRL_Read1_I : in STD_LOGIC_VECTOR(2 downto 0);
         CTRL_Read2_I : in STD_LOGIC_VECTOR(2 downto 0);
         CTRL_ExRA_I : in STD_LOGIC_VECTOR(2 downto 0);
         CTRL_ExWBen_I : in STD_LOGIC;
         CTRL_MemRA_I : in STD_LOGIC_VECTOR(2 downto 0);
         CTRL_MemWBen_I : in STD_LOGIC;
-        CTRL_IDmux1sel_I : in STD_LOGIC_VECTOR(1 downto 0);
+        CTRL_IDmux1sel_I : in STD_LOGIC_VECTOR(2 downto 0);
+        CTRL_IDmemOpr_I : in STD_LOGIC_VECTOR(1 downto 0);
         CTRL_DR1sel_O : out STD_LOGIC_VECTOR(1 downto 0);
         CTRL_DR2sel_O : out STD_LOGIC_VECTOR(1 downto 0);
+        CTRL_ADRsel_O : out STD_LOGIC_VECTOR(1 downto 0);
         -----------
         
+        -----------BRANCH ADDRESS FORWARDING
+        CTRL_BUBBLE_I : in STD_LOGIC;
+        CTRL_ExData_I : in STD_LOGIC_VECTOR(16 downto 0);
+        CTRL_MemData_I : in STD_LOGIC_VECTOR(16 downto 0);
+        CTRL_CLKen_O : out STD_LOGIC;
+        -----------
+        
+        -----------OUT PORT FORWARDING
+        CTRL_OutportData_O : out STD_LOGIC_VECTOR(16 downto 0);
+        -----------
         CTRL_CLK_I : in STD_LOGIC;
         CTRL_RST_I : in STD_LOGIC);
 end Controller;
@@ -75,6 +87,8 @@ component BranchPredict is
         BPD_Opcode_I : in STD_LOGIC_VECTOR(6 downto 0);
         BPD_Disp_I : in STD_LOGIC_VECTOR(15 downto 0);
         BPD_DA_I : in STD_LOGIC_VECTOR(16 downto 0);
+        BPD_Data_I : in STD_LOGIC_VECTOR(16 downto 0);
+        BPD_SEL_I : in STD_LOGIC;
         BPD_BranchAddr_O : out STD_LOGIC_VECTOR(15 downto 0);
         BPD_OverrideEn_O : out STD_LOGIC);
 end component;
@@ -143,14 +157,43 @@ end component;
         FU_ExWBen_I : in STD_LOGIC;
         FU_MemRA_I : in STD_LOGIC_VECTOR(2 downto 0);
         FU_MemWBen_I : in STD_LOGIC;
-        FU_IDmux1sel_I : in STD_LOGIC_VECTOR(1 downto 0);
+        FU_IDmux1sel_I : in STD_LOGIC_VECTOR(2 downto 0);
+        FU_IDmemOpr_I : in STD_LOGIC_VECTOR(1 downto 0);
         FU_DR1sel_O : out STD_LOGIC_VECTOR(1 downto 0);
         FU_DR2sel_O : out STD_LOGIC_VECTOR(1 downto 0);
+        FU_ADRsel_O : out STD_LOGIC_VECTOR(1 downto 0);
         FU_CLK_I,FU_RST_I,FU_CLR_I : in STD_LOGIC);
     end component;
     
     --signal FU_DR1sel_S,FU_DR2sel_S : STD_LOGIC_VECTOR(1 downto 0);
 ----------------------------------------------FORWARDING UNIT END----------------------------------------------
+
+component BranchForwardingUnit is
+    Port (
+        FU_Read1_I : in STD_LOGIC_VECTOR(2 downto 0); 
+        FUB_ExRA_I : in STD_LOGIC_VECTOR(2 downto 0);
+        FUB_ExWBen_I : in STD_LOGIC;
+        FUB_ExData_I : in STD_LOGIC_VECTOR(16 downto 0);
+        FUB_MemRA_I : in STD_LOGIC_VECTOR(2 downto 0);
+        FUB_MemWBen_I : in STD_LOGIC;
+        FUB_MemData_I : in STD_LOGIC_VECTOR(16 downto 0);
+        FUB_Data_O : out STD_LOGIC_VECTOR(16 downto 0);
+        FUB_SEL_O : out STD_LOGIC
+    );
+end component;
+
+component ShiftRegister is
+    Port ( 
+        SR_BUBBLE_I : in STD_LOGIC;
+        SR_CLKen_O : out STD_LOGIC;
+        SR_CLK_I : in STD_LOGIC;
+        SR_RST_I,SR_CLR_I: in STD_LOGIC
+    );
+end component;
+
+    signal FUB_Data_S : STD_LOGIC_VECTOR(16 downto 0);
+    signal FUB_SEL_S : STD_LOGIC;
+    signal CTRL_CLKen_S : STD_LOGIC;
     
 begin
 
@@ -161,6 +204,8 @@ begin
         BPD_Opcode_I        => CTRL_Opcode_I,
         BPD_Disp_I          => CTRL_DISP_I,
         BPD_DA_I            => CTRL_DA_I,
+        BPD_Data_I          => FUB_Data_S,
+        BPD_SEL_I           => FUB_SEL_S,
         BPD_BranchAddr_O    => P_BranchAddr_S,
         BPD_OverrideEn_O    => P_OverrideEn_S
     );
@@ -200,7 +245,7 @@ begin
         VER_CorrectEn_O     => V_CorrectEn_S
     );
     
-CTRL_CLRfd_O <= P_OverrideEn_S or V_CorrectEn_S;
+CTRL_CLRfd_O <= P_OverrideEn_S or V_CorrectEn_S or not(CTRL_CLKen_S);
 CTRL_CLRde_O <= V_CorrectEn_S;
 CTRL_CLRem_O <= '0';--CTRL_CLRem_O <= V_CorrectEn_S;
 ----------------------------------------------BRANCH PREDICTION END----------------------------------------------
@@ -215,8 +260,10 @@ CTRL_CLRem_O <= '0';--CTRL_CLRem_O <= V_CorrectEn_S;
         FU_MemRA_I      => CTRL_MemRA_I,
         FU_MemWBen_I    => CTRL_MemWBen_I,
         FU_IDmux1sel_I  => CTRL_IDmux1sel_I,
+        FU_IDmemOpr_I   => CTRL_IDmemOpr_I,
         FU_DR1sel_O     => CTRL_DR1sel_O,--FU_DR1sel_S,
         FU_DR2sel_O     => CTRL_DR2sel_O,--FU_DR2sel_S,
+        FU_ADRsel_O     => CTRL_ADRsel_O,
         FU_CLK_I        => CTRL_CLK_I,
         FU_RST_I        => CTRL_RST_I,
         FU_CLR_I        => V_CorrectEn_S
@@ -225,4 +272,29 @@ CTRL_CLRem_O <= '0';--CTRL_CLRem_O <= V_CorrectEn_S;
     --CTRL_DR1sel_O <= FU_DR1sel_S;
     --CTRL_DR2sel_O <= FU_DR2sel_S;
 ----------------------------------------------FORWARDING UNIT END----------------------------------------------
+
+
+    Map_BranchForwardingUnit: BranchForwardingUnit Port map(
+        FU_Read1_I      => CTRL_Read1_I,      
+        FUB_ExRA_I      => CTRL_ExRA_I,
+        FUB_ExWBen_I    => CTRL_ExWBen_I,
+        FUB_ExData_I    => CTRL_ExData_I,
+        FUB_MemRA_I     => CTRL_MemRA_I,
+        FUB_MemWBen_I   => CTRL_MemWBen_I,
+        FUB_MemData_I   => CTRL_MemData_I,
+        FUB_Data_O      => FUB_Data_S,
+        FUB_SEL_O       => FUB_SEL_S
+    );
+    CTRL_OutportData_O<=FUB_Data_S;
+----------------------------------------------- SHIFT REGISTER ------------------------------------------------
+    Map_ShiftRegister: ShiftRegister Port map( 
+        SR_BUBBLE_I => CTRL_BUBBLE_I,
+        SR_CLKen_O  => CTRL_CLKen_S,
+        SR_CLK_I    => CTRL_CLK_I,
+        SR_RST_I    => CTRL_RST_I,
+        SR_CLR_I    => V_CorrectEn_S
+    );
+    CTRL_CLKen_O<=CTRL_CLKen_S;
+---------------------------------------------- SHIFT REGISTER END----------------------------------------------      
+
 end Behavioral;

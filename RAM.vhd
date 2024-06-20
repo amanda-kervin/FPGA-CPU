@@ -292,9 +292,9 @@ xpm_memory_dpdistram_inst : xpm_memory_dpdistram
     -- Common module generics
     MEMORY_SIZE             => 16384,           --positive integer
     CLOCKING_MODE           => "common_clock", --string; "common_clock", "independent_clock" 
-    MEMORY_INIT_FILE        => "none",         --string; "none" or "<filename>.mem" 
+    MEMORY_INIT_FILE        => "none",--"counter_V1_10_O.mem",--"none",--"CoUnTeRO.mem",--"Decimal.mem",--"Mem_default.mem",--         --string; "none" or "<filename>.mem" 
     MEMORY_INIT_PARAM       => "",             --string;
-    USE_MEM_INIT            => 1,              --integer; 0,1
+    USE_MEM_INIT            => 0,              --integer; 0,1
     MESSAGE_CONTROL         => 0,              --integer; 0,1
     USE_EMBEDDED_CONSTRAINT => 0,              --integer: 0,1
     MEMORY_OPTIMIZATION     => "true",          --string; "true", "false" 
@@ -304,7 +304,7 @@ xpm_memory_dpdistram_inst : xpm_memory_dpdistram
     READ_DATA_WIDTH_A       => 16,             --positive integer
     BYTE_WRITE_WIDTH_A      => 16,             --integer; 8, 9, or WRITE_DATA_WIDTH_A value
     ADDR_WIDTH_A            => 10,              --positive integer
-    READ_RESET_VALUE_A      => "0",            --string
+    READ_RESET_VALUE_A      => "0",            --string 
     READ_LATENCY_A          => 0,              --non-negative integer
 
     -- Port B module generics
@@ -318,7 +318,7 @@ xpm_memory_dpdistram_inst : xpm_memory_dpdistram
     -- Port A module ports
     clka                    => RAM_CLK_I,--clka,
     rsta                    => RAM_RST_I,--rsta,
-    ena                     => RAM_EnB,
+    ena                     => RAM_EnA_I,
     regcea                  => '1',   --do not change
     wea                     => RAM_WenA_I, --wea            | Input     | WRITE_DATA_WIDTH_A/BYTE_WRITE_WIDTH_A | clka   | Active-high | Required    
     addra                   => RAM_AddrA_I,
@@ -326,7 +326,7 @@ xpm_memory_dpdistram_inst : xpm_memory_dpdistram
     douta                   => RAM_DataA_O,
 
     -- Port B module ports
-    clkb                    => RAM_CLK_I,--clkb,
+    clkb                    => '1',--RAM_CLK_I,--clkb,
     rstb                    => RAM_RST_I,--rstb,
     enb                     => RAM_EnB,
     regceb                  => '1',   --do not change

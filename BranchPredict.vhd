@@ -36,7 +36,9 @@ entity BranchPredict is
         BPD_PCip1_I : in STD_LOGIC_VECTOR(15 downto 0);
         BPD_Opcode_I : in STD_LOGIC_VECTOR(6 downto 0);
         BPD_Disp_I : in STD_LOGIC_VECTOR(15 downto 0);
-        BPD_DA_I : in STD_LOGIC_VECTOR(16 downto 0);
+        BPD_DA_I : in STD_LOGIC_VECTOR(16 downto 0);    -- data from register file
+        BPD_Data_I : in STD_LOGIC_VECTOR(16 downto 0);  -- data from forwarding unit
+        BPD_SEL_I : in STD_LOGIC;
         BPD_BranchAddr_O : out STD_LOGIC_VECTOR(15 downto 0);
         BPD_OverrideEn_O : out STD_LOGIC);
 end BranchPredict;
@@ -45,6 +47,7 @@ architecture Behavioral of BranchPredict is
     signal BranchAddr : STD_LOGIC_VECTOR(15 downto 0);
     signal PCi : STD_LOGIC_VECTOR(15 downto 0);
     signal BranchTrue : STD_LOGIC;
+    signal DA: STD_LOGIC_VECTOR(16 downto 0);
 
 begin
 
@@ -56,8 +59,13 @@ begin
         BranchTrue <=   '1' when "1000000"|"1000001"|"1000010"|"1000011"|"1000100"|"1000101"|"1000110"|"1000111",
                         '0' when others;
     
+    -- multiplex DA from register file or forwarding unit
+    with BPD_SEL_I select
+        DA <=   BPD_Data_I when '1',
+                BPD_DA_I when others;
+    
     -- calculate branch address based on opcode -- for reference: result <= std_logic_vector(shift_left(signed(ex1),to_integer(signed(ex2))));
-process (BPD_Opcode_I, PCi, BPD_Disp_I, BPD_DA_I)
+process (BPD_Opcode_I, PCi, BPD_Disp_I, DA)
 begin
     --a<=a
     case(BPD_Opcode_I) is
@@ -67,11 +75,11 @@ begin
     
     when "1000011"|"1000100"|"1000101"|"1000110"|"1001001" =>
         -- B2   PC <= R[ra]{word aligned} + 2*disp.l
-        BranchAddr <= std_logic_vector(signed(BPD_DA_I(15 downto 1)&'0') + shift_left(signed(BPD_Disp_I),1));
+        BranchAddr <= std_logic_vector(signed(DA(15 downto 1)&'0') + shift_left(signed(BPD_Disp_I),1));
     
     when "1000111" =>
         -- RETURN   PC <= R[r7]{word aligned}
-        BranchAddr <= BPD_DA_I(15 downto 1)&'0';
+        BranchAddr <= DA(15 downto 1)&'0';
            
     when others =>
         -- do nothing (output zeros)

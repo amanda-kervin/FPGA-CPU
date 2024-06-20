@@ -54,13 +54,13 @@ process(IFID_CLK_I)
                 IFID_Instr_O <= (15 downto 0 => '0');
                 IFID_INport_O <= (15 downto 0 => '0');
             else
+                IFID_INport_O<=IFID_INport_I;
                 case IFID_InstrSEL_I is
                     when '1' =>
                         IFID_Instr_O <= IFID_InstrRAM_I;
                     when others =>
                         IFID_Instr_O <= IFID_InstrROM_I;
                     end case;
-                IFID_INport_O<=IFID_INport_I;
                 --IFID_PCip1_O <= IFID_PCip1_I;
             end if;
         end if;

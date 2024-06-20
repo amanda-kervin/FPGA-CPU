@@ -46,7 +46,8 @@ entity Decoder is
         
         IDC_Opcode_O : out STD_LOGIC_VECTOR(6 downto 0);
         IDC_DISP_O : out STD_LOGIC_VECTOR(15 downto 0);
-        IDC_MEMopr_O : out STD_LOGIC_VECTOR(1 downto 0)
+        IDC_MEMopr_O : out STD_LOGIC_VECTOR(1 downto 0);
+        IDC_BUBBLE_O : out STD_LOGIC
         );
 end Decoder;
 
@@ -77,6 +78,7 @@ begin
         IDC_Opcode_O <= (6 downto 0 => '0');
         IDC_DISP_O <= (15 downto 0 => '0');
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
         --RB <= (16 downto 0 => '00000000000000000');
     --A1    
     when "0000001" | "0000010" | "0000011" | "0000100" =>
@@ -92,6 +94,7 @@ begin
         IDC_Opcode_O <= (6 downto 0 => '0');
         IDC_DISP_O <= (15 downto 0 => '0');
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
         
      --A2
      when "0000101" | "0000110" =>
@@ -107,6 +110,7 @@ begin
         IDC_Opcode_O <= (6 downto 0 => '0');
         IDC_DISP_O <= (15 downto 0 => '0');
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
         
      --A3 
         --(TEST)
@@ -123,6 +127,7 @@ begin
         IDC_Opcode_O <= (6 downto 0 => '0');
         IDC_DISP_O <= (15 downto 0 => '0');
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
         
         --(OUT)
      when "0100000"=>    
@@ -138,6 +143,7 @@ begin
         IDC_Opcode_O <= (6 downto 0 => '0');
         IDC_DISP_O <= (15 downto 0 => '0');
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
         
         --(IN)
      when "0100001"=> 
@@ -153,6 +159,7 @@ begin
         IDC_Opcode_O <= (6 downto 0 => '0');
         IDC_DISP_O <= (15 downto 0 => '0');   
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
      
      --Branch 
         --B1
@@ -169,6 +176,7 @@ begin
         IDC_Opcode_O <= IDC_Instr_I(15 downto 9);   --******
         IDC_DISP_O <= (15 downto 9 => IDC_Instr_I(8))&IDC_Instr_I(8 downto 0);      --******
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
         
         --B2
      when "1000011"|"1000100"|"1000101"|"1001001"=>
@@ -184,6 +192,7 @@ begin
         IDC_Opcode_O <= IDC_Instr_I(15 downto 9);   --******
         IDC_DISP_O <= (15 downto 6 => IDC_Instr_I(5))&IDC_Instr_I(5 downto 0);      --******
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
         
         --B2 SUB
     when "1000110" =>
@@ -199,6 +208,7 @@ begin
         IDC_Opcode_O <= IDC_Instr_I(15 downto 9);   --******
         IDC_DISP_O <= (15 downto 6 => IDC_Instr_I(5))&IDC_Instr_I(5 downto 0);      --******
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
         
         --Return
     when "1000111"=>
@@ -214,6 +224,7 @@ begin
         IDC_Opcode_O <= IDC_Instr_I(15 downto 9);   --******
         IDC_DISP_O <= (15 downto 0 => '0');   
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
      
      --LOAD   
      when "0010000"=>
@@ -229,6 +240,7 @@ begin
         IDC_Opcode_O <= (6 downto 0 => '0');
         IDC_DISP_O <= (15 downto 0 => '0');   
         IDC_MEMopr_O <= "10";                       --******
+        IDC_BUBBLE_O <= '1';                        --******
     
     --STORE
     when "0010001"=>
@@ -244,6 +256,7 @@ begin
         IDC_Opcode_O <= (6 downto 0 => '0');
         IDC_DISP_O <= (15 downto 0 => '0');   
         IDC_MEMopr_O <= "11";                       --******
+        IDC_BUBBLE_O <= '0';
      
      --LOADIMM  
      when "0010010"=>
@@ -259,6 +272,7 @@ begin
         IDC_Opcode_O <= (6 downto 0 => '0');
         IDC_DISP_O <= (15 downto 0 => '0');
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
         
     --MOV
     when "0010011"=>
@@ -274,6 +288,7 @@ begin
         IDC_Opcode_O <= (6 downto 0 => '0');
         IDC_DISP_O <= (15 downto 0 => '0');
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
             
      when others=>
         IDC_IXread1_O <= "000";
@@ -288,6 +303,7 @@ begin
         IDC_Opcode_O <= (6 downto 0 => '0');
         IDC_DISP_O <= (15 downto 0 => '0');
         IDC_MEMopr_O <= "00";
+        IDC_BUBBLE_O <= '0';
      end case;   
 end process;
         

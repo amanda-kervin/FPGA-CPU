@@ -40,7 +40,16 @@ entity RegisterFile is
            IDR_CLK_I : in STD_LOGIC;
            IDR_RST_I : in STD_LOGIC;
            IDR_DR1R_O : out STD_LOGIC_VECTOR(16 downto 0);
-           IDR_DR2R_O : out STD_LOGIC_VECTOR(16 downto 0));
+           IDR_DR2R_O : out STD_LOGIC_VECTOR(16 downto 0);
+           IDR_TestReg0_O : out STD_LOGIC_VECTOR(16 downto 0);
+           IDR_TestReg1_O : out STD_LOGIC_VECTOR(16 downto 0);
+           IDR_TestReg2_O : out STD_LOGIC_VECTOR(16 downto 0);
+           IDR_TestReg3_O : out STD_LOGIC_VECTOR(16 downto 0);
+           IDR_TestReg4_O : out STD_LOGIC_VECTOR(16 downto 0);
+           IDR_TestReg5_O : out STD_LOGIC_VECTOR(16 downto 0);
+           IDR_TestReg6_O : out STD_LOGIC_VECTOR(16 downto 0);
+           IDR_TestReg7_O : out STD_LOGIC_VECTOR(16 downto 0)
+           );
 
 end RegisterFile;
 
@@ -55,7 +64,7 @@ process(IDR_CLK_I)
 begin
    if(IDR_CLK_I='0' and IDR_CLK_I'event) then if(IDR_RST_I='1') then
       for i in 0 to 7 loop
-         reg_file(i)<= (others => '0'); 
+         reg_file(i)<= (16 downto 0 => '0'); 
       end loop;
    elsif(IDR_WBenable_I='1') then
       case IDR_RA_I(2 downto 0) is
@@ -93,5 +102,16 @@ reg_file(4) when(IDR_IXread2_I="100") else
 reg_file(5) when(IDR_IXread2_I="101") else
 reg_file(6) when(IDR_IXread2_I="110") else
 reg_file(7);
+
+
+--*********BRENTS TESTING**********
+IDR_TestReg0_O<=reg_file(0);
+IDR_TestReg1_O<=reg_file(1);
+IDR_TestReg2_O<=reg_file(2);
+IDR_TestReg3_O<=reg_file(3);
+IDR_TestReg4_O<=reg_file(4);
+IDR_TestReg5_O<=reg_file(5);
+IDR_TestReg6_O<=reg_file(6);
+IDR_TestReg7_O<=reg_file(7);
 
 end Behavioral;

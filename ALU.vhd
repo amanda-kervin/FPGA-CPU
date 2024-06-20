@@ -61,7 +61,7 @@ begin
     
     -- SUB
     when "0010" =>
-        result <=  std_logic_vector( signed(EX_DR1_I) - signed(EX_DR2_I) );
+        result <=  '0'& std_logic_vector( signed(EX_DR1_I(15 downto 0)) - signed(EX_DR2_I(15 downto 0)) );
     
     -- MUL
     when "0011" =>
@@ -70,15 +70,15 @@ begin
     
     -- NAND
     when "0100" =>
-        result <= (EX_DR1_I NAND EX_DR2_I);
+        result <= '0'&(EX_DR1_I(15 downto 0) NAND EX_DR2_I(15 downto 0));
     
     -- SHL
     when "0101" =>
-        result <= std_logic_vector(shift_left( signed(EX_DR1_I) , to_integer( signed(EX_DR2_I) ) ) ) ;
+        result <= std_logic_vector(shift_left( unsigned(EX_DR1_I) , to_integer( unsigned(EX_DR2_I) ) ) ) ;
     
     -- SHR
     when "0110" =>
-        result <= std_logic_vector(shift_right( signed(EX_DR1_I) , to_integer( signed(EX_DR2_I) ) ) );
+        result <= '0' & std_logic_vector(shift_right( unsigned(EX_DR1_I(15 downto 0)) , to_integer( unsigned(EX_DR2_I(15 downto 0)) ) ) );
     
     -- TEST
     when "0111" =>
